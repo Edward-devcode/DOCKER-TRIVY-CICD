@@ -1,0 +1,99 @@
+name: Build and Deploy ECS
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - README.md
+      - docs/**
+      - .github/ISSUE_TEMPLATE/**
+      - .github/PULL_REQUEST_TEMPLATE.md
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: ecs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Run Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.2
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-actions-role
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2.1
+
+      - name: Build and Push
+        uses: docker/build-push-action@v7.3
+        with:
+          context: .
+          push: true
+
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/my-app:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/my-app:latest
+
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set Image Output
+        id: image
+        run: |
+          echo "image=${{ steps.login-ecr.outputs.registry }}/my-app:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.2
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-actions-role
+          aws-region: us-east-1
+
+      - name: Render Task Definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.9
+        with:
+          task-definition: task-definition.json
+          container-name: my-container
+          image: ${{ needs.build.outputs.image }}
+
+      - name: Deploy ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.9
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          cluster: my-cluster
+          service: my-service
+          wait-for-service-stability: true
