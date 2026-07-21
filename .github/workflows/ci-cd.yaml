@@ -45,7 +45,7 @@ jobs:
           echo Ref: "${{ github.ref }}"
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6.2.2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::219934881213:role/TRIVY
           aws-region: us-east-1
