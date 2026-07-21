@@ -92,7 +92,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1.9.0
         with:
           task-definition: task-definition.json
-          container-name: my-container
+          container-name: nginx
           image: ${{ needs.build.outputs.image }}
 
       - name: Deploy ECS
