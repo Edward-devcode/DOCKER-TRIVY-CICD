@@ -208,4 +208,4 @@ Para que el despliegue funcione correctamente, tu tarea de ECS debe:
 
 ## Nota sobre YAML en GitHub Actions
 
-GitHub Actions requiere indentación con espacios, no tabs. Si el archivo de workflow presenta errores de sintaxis, verifica que no haya mezcla de tabulaciones y espacios.
+GitHub Actions requiere indentación con espacios, no tabs. Si el archivo de workflow presenta errores de sintaxis, verifica que no haya mezcla de tabulaciones y espacios en la indentación.
