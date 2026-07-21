@@ -39,6 +39,11 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: "1"
 
+      - name: Debug Github actions context
+        run: |
+          echo Repository: "${{ github.repository }}"
+          echo Ref: "${{ github.ref }}"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.2.2
         with:
