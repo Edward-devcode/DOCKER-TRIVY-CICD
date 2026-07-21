@@ -25,7 +25,7 @@ jobs:
       image: ${{ steps.image.outputs.image }}
 
     steps:
-      - name: Checkout
+      - name: Checkout uno
         uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
