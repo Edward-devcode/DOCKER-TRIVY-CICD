@@ -39,7 +39,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: "1"
 
-      - name: Debug Github actions context
+      - name: Debug Github actions context klddd
         run: |
           echo Repository: "${{ github.repository }}"
           echo Ref: "${{ github.ref }}"
