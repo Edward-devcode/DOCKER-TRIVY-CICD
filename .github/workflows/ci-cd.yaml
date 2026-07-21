@@ -84,7 +84,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.2.2
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: arn:aws:iam::219934881213:role/Trivyy
           aws-region: us-east-1
 
       - name: Render Task Definition
@@ -96,7 +96,7 @@ jobs:
           image: ${{ needs.build.outputs.image }}
 
       - name: Deploy ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.9
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           cluster: my-cluster
